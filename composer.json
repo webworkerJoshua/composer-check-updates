@@ -1,0 +1,41 @@
+{
+  "name": "webworkerjoshua/composer-check-updates",
+  "description": "Interactive dependency update checker for Composer — shows updates within and beyond your version ranges, npm-check-updates style",
+  "type": "composer-plugin",
+  "license": "MIT",
+  "keywords": [
+    "composer",
+    "update",
+    "outdated",
+    "dependencies",
+    "interactive",
+    "ncu"
+  ],
+  "require": {
+    "php": ">=8.3",
+    "composer-plugin-api": "^2.3"
+  },
+  "require-dev": {
+    "composer/composer": "^2.7",
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "ComposerCheckUpdates\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ComposerCheckUpdates\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "class": "ComposerCheckUpdates\\Plugin"
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
