@@ -36,6 +36,27 @@ composer require --dev webworkerjoshua/composer-check-updates
 
 Composer will ask you to trust the plugin (`allow-plugins`); confirm with yes.
 
+### Global installation
+
+Install once, use in every project:
+
+```bash
+composer global require webworkerjoshua/composer-check-updates
+```
+
+Globally installed Composer plugins are loaded for every `composer`
+invocation, so `composer check-updates` / `composer ccu` then works in any
+project directory. The global install also provides a bare `ccu` command —
+make sure Composer's global bin directory is on your `PATH` (find it with
+`composer global config bin-dir --absolute`, typically
+`~/.composer/vendor/bin` on macOS):
+
+```bash
+cd /path/to/any/project
+ccu              # same as: composer check-updates
+ccu --dry-run
+```
+
 ## Usage
 
 ```bash

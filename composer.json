@@ -3,6 +3,9 @@
   "description": "Interactive dependency update checker for Composer — shows updates within and beyond your version ranges, npm-check-updates style",
   "type": "composer-plugin",
   "license": "MIT",
+  "bin": [
+    "bin/ccu"
+  ],
   "keywords": [
     "composer",
     "update",
