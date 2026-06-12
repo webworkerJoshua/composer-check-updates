@@ -30,7 +30,7 @@ final class UpdateFinder
      *
      * @return FoundUpdate[] only packages that actually have an update
      */
-    public function find(bool $ignorePlatformReqs = false): array
+    public function find(bool $ignorePlatformReqs = false, ?PackageFilter $filter = null): array
     {
         $root = $this->composer->getPackage();
         $installedRepo = $this->getInstalledRepository();
@@ -71,6 +71,9 @@ final class UpdateFinder
                 $done++;
                 $name = $link->getTarget();
                 if (PlatformRepository::isPlatformPackage($name)) {
+                    continue;
+                }
+                if ($filter !== null && !$filter->accepts($name, $set['dev'])) {
                     continue;
                 }
 

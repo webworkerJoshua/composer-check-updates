@@ -13,9 +13,11 @@ final class VersionDiff
     public const UNKNOWN = 'unknown';
 
     /**
-     * Classify the jump between two pretty versions by their literal
-     * major.minor.patch segments (0.x minors count as minor, like ncu's
-     * group view, because the constraint impact is what matters here).
+     * Classify the jump between two pretty versions by their
+     * major.minor.patch segments. Below 1.0.0 a minor bump counts as
+     * major: semver makes no compatibility promise for 0.x, and Composer's
+     * caret operator agrees (^0.1.0 allows 0.1.x but not 0.2.0). Patch
+     * bumps within the same 0.x minor stay patches.
      */
     public static function between(string $from, string $to): string
     {
@@ -30,7 +32,7 @@ final class VersionDiff
             return self::MAJOR;
         }
         if ($a[1] !== $b[1]) {
-            return self::MINOR;
+            return $a[0] === 0 ? self::MAJOR : self::MINOR;
         }
         if ($a[2] !== $b[2] || trim($from, 'vV') !== trim($to, 'vV')) {
             return self::PATCH;

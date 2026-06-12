@@ -61,6 +61,22 @@ Major`). The two entries are mutually exclusive: selecting one automatically
 deselects the other, so you always make exactly one decision per package.
 **a** (select all) prefers the in-range entry — majors stay opt-in.
 
+Below 1.0.0, a minor bump (`0.1.0 → 0.2.0`) is shown as **Major**: semver
+makes no compatibility promise for 0.x, and Composer's `^0.1.0` does not
+allow `0.2.0` either. Patch bumps within the same 0.x minor stay patches.
+
+### Filtering
+
+```bash
+composer check-updates --filter "symfony/*"       # only matching packages (repeatable, -f)
+composer check-updates --reject "phpunit/*"       # skip matching packages (repeatable, -x)
+composer check-updates --dev-only                 # only require-dev
+composer check-updates --prod-only                # only require
+```
+
+Patterns support `*` wildcards and match case-insensitively; rejects win
+over filters.
+
 ### Non-interactive usage
 
 ```bash

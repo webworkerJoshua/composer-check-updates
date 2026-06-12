@@ -10,6 +10,7 @@ use Composer\Json\JsonManipulator;
 use ComposerCheckUpdates\Grouper;
 use ComposerCheckUpdates\Model\Group;
 use ComposerCheckUpdates\Model\UpdateEntry;
+use ComposerCheckUpdates\PackageFilter;
 use ComposerCheckUpdates\Tui\InteractiveSelector;
 use ComposerCheckUpdates\UpdateFinder;
 use ComposerCheckUpdates\Version\ConstraintUpdater;
@@ -29,7 +30,11 @@ final class CheckUpdatesCommand extends BaseCommand
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Apply all updates without the interactive picker (see --target)')
             ->addOption('target', 't', InputOption::VALUE_REQUIRED, 'With --all, which update to pick when a package has both: "latest" or "in-range"', 'latest')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only list available updates, never modify anything')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format for non-interactive listing: "group" or "json"', 'group')
+            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'Output format for non-interactive listing: "group" or "json"', 'group')
+            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Only check packages matching this pattern, supports * wildcards (repeatable)')
+            ->addOption('reject', 'x', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip packages matching this pattern, supports * wildcards (repeatable)')
+            ->addOption('dev-only', null, InputOption::VALUE_NONE, 'Only check require-dev dependencies')
+            ->addOption('prod-only', null, InputOption::VALUE_NONE, 'Only check require dependencies')
             ->addOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore php and extension requirements when resolving candidates');
     }
 
@@ -52,8 +57,23 @@ final class CheckUpdatesCommand extends BaseCommand
             return 1;
         }
 
+        $devOnly = (bool) $input->getOption('dev-only');
+        $prodOnly = (bool) $input->getOption('prod-only');
+        if ($devOnly && $prodOnly) {
+            $io->writeError('<error>--dev-only and --prod-only are mutually exclusive</error>');
+
+            return 1;
+        }
+
+        $filter = new PackageFilter(
+            $this->stringArrayOption($input, 'filter'),
+            $this->stringArrayOption($input, 'reject'),
+            $devOnly,
+            $prodOnly,
+        );
+
         $finder = new UpdateFinder($composer, $io);
-        $updates = $finder->find((bool) $input->getOption('ignore-platform-reqs'));
+        $updates = $finder->find((bool) $input->getOption('ignore-platform-reqs'), $filter);
 
         if ($updates === []) {
             $io->write('<info>All dependencies match the latest available versions.</info>');
@@ -182,6 +202,19 @@ final class CheckUpdatesCommand extends BaseCommand
         }
 
         return proc_close($process);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function stringArrayOption(InputInterface $input, string $name): array
+    {
+        $value = $input->getOption($name);
+        if (!is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_filter($value, 'is_string'));
     }
 
     private function isInteractive(InputInterface $input): bool
