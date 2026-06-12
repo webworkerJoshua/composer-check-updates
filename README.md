@@ -1,5 +1,7 @@
 # composer-check-updates
 
+[![CI](https://github.com/webworkerJoshua/composer-check-updates/actions/workflows/ci.yml/badge.svg)](https://github.com/webworkerJoshua/composer-check-updates/actions/workflows/ci.yml)
+
 Interactive dependency update checker for Composer, inspired by
 [npm-check-updates](https://github.com/raineorshine/npm-check-updates).
 
