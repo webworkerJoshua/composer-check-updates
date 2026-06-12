@@ -38,7 +38,15 @@ final class UpdateFinder
         $repositorySet = new RepositorySet($root->getMinimumStability(), $root->getStabilityFlags());
         $repositorySet->addRepository(new CompositeRepository($this->composer->getRepositoryManager()->getRepositories()));
 
-        $platformOverrides = $this->composer->getConfig()->get('platform') ?: [];
+        $platformOverrides = [];
+        $configuredPlatform = $this->composer->getConfig()->get('platform');
+        if (is_array($configuredPlatform)) {
+            foreach ($configuredPlatform as $packageName => $version) {
+                if (is_string($packageName) && (is_string($version) || $version === false)) {
+                    $platformOverrides[$packageName] = $version;
+                }
+            }
+        }
         $platformRepo = new PlatformRepository([], $platformOverrides);
         $selector = new VersionSelector($repositorySet, $platformRepo);
 

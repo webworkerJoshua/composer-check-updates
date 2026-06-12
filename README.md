@@ -84,14 +84,16 @@ the best candidate overall; `composer.json` edits go through Composer's
 
 ## Requirements
 
-- PHP >= 8.1
+- PHP >= 8.3
 - Composer >= 2.3
 
 ## Development
 
 ```bash
 composer install
-composer test
+composer test     # Pest test suite
+composer stan     # PHPStan static analysis (level max)
+composer check    # both
 ```
 
 ## License

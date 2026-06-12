@@ -45,6 +45,13 @@ final class CheckUpdatesCommand extends BaseCommand
             return 1;
         }
 
+        $format = $input->getOption('format');
+        if (!in_array($format, ['group', 'json'], true)) {
+            $io->writeError('<error>--format must be "group" or "json"</error>');
+
+            return 1;
+        }
+
         $finder = new UpdateFinder($composer, $io);
         $updates = $finder->find((bool) $input->getOption('ignore-platform-reqs'));
 
@@ -57,7 +64,7 @@ final class CheckUpdatesCommand extends BaseCommand
         $groups = Grouper::group($updates);
 
         if ($input->getOption('dry-run') || (!$input->getOption('all') && !$this->isInteractive($input))) {
-            $this->printListing($groups, $input->getOption('format'));
+            $this->printListing($groups, $format);
 
             return 0;
         }
@@ -149,7 +156,11 @@ final class CheckUpdatesCommand extends BaseCommand
     {
         $io = $this->getIO();
 
-        $composerBin = getenv('COMPOSER_BINARY') ?: ($_SERVER['argv'][0] ?? null);
+        $composerBin = getenv('COMPOSER_BINARY');
+        if ($composerBin === false || $composerBin === '') {
+            $argv = $_SERVER['argv'] ?? null;
+            $composerBin = is_array($argv) && isset($argv[0]) && is_string($argv[0]) ? $argv[0] : null;
+        }
         if ($composerBin === null || !is_file($composerBin)) {
             $io->writeError(sprintf(
                 '<warning>Could not locate the composer binary. Run this yourself:</warning> composer %s',
@@ -159,7 +170,7 @@ final class CheckUpdatesCommand extends BaseCommand
             return 1;
         }
 
-        $command = array_merge([PHP_BINARY, $composerBin], $args);
+        $command = array_merge([PHP_BINARY, $composerBin], array_values($args));
         $io->write('');
         $io->write(sprintf('Running <info>composer %s</info>', implode(' ', $args)));
 
