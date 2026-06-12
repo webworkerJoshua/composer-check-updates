@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Standalone `ccu` entry point for global installs.
+ *
+ * The plugin itself must run inside Composer (it uses Composer's resolver
+ * and plugin command registration), so this script simply re-invokes
+ * `composer check-updates` with inherited stdio — keeping the interactive
+ * picker fully functional because the child process talks to the real TTY.
+ */
+
+$command = array_merge(['composer', 'check-updates'], array_slice($_SERVER['argv'], 1));
+
+$process = @proc_open($command, [STDIN, STDOUT, STDERR], $pipes);
+if (!is_resource($process)) {
+    fwrite(STDERR, "ccu: could not run \"composer\" — is Composer on your PATH?\n");
+    exit(1);
+}
+
+exit(proc_close($process));
